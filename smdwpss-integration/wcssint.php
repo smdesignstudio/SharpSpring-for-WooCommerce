@@ -32,11 +32,19 @@ foreach ( glob( plugin_dir_path( __FILE__ ) . 'admin/*.php' ) as $file ) {
 
 add_action( 'plugins_loaded', 'wcssint_admin_settings' );
 add_action( 'wp_head', 'load_wcssint_script', 1);
- 
-function load_wcssint_script() { 
+
+
+// Create a function that will be called via wp_head hook,
+// and print javascript within <head>. This code is used
+// for tracking website visitors.
+
+function load_wcssint_script() {
+	
+	// Fetch plugin options
 	$wcssint_options = get_option( 'wcssint-options' );
+
     if ( !is_admin() ) {  
-        $mainscript = $here = <<<WCSSINTINLINEHEAD
+        $headscript = <<<WCSSINTINLINEHEAD
          	<script type="text/javascript">
 				var _ss = _ss || [];
 				_ss.push(['_setDomain', 'https://{$wcssint_options['domain_number']}.marketingautomation.services/net']);
@@ -52,22 +60,28 @@ function load_wcssint_script() {
 			</script>
 WCSSINTINLINEHEAD;
 
-		echo $mainscript;
-
+		echo $headscript;
     }  
 }  
 
 add_action( 'woocommerce_thankyou', 'wcssint_ecomm_enabled' );
 
+// Create a function that will be called on WooCommerce Thank You! page,
+// ie. when the purchase has been marked as successful. This function
+// adds another piece of JavaScript that tracks purchases on the website
+
 function wcssint_ecomm_enabled( $order_id ) {
 
+	// Fetch plugin options
 	$wcssint_options = get_option( 'wcssint-options' );
 
+	// Check whether SharpSpring should track purchases or not. If so,
+	// add another script - if not, return(exit function).
 	if($wcssint_options['ecomm_enable'] != "yes") {
 		return;
 	}
 
-	// Lets grab the order and it's data
+	// Grab order and its data
 	$order = wc_get_order( $order_id );
 	$total = $order->get_total();
 	$tax = $order->get_total_tax();
@@ -98,6 +112,9 @@ function wcssint_ecomm_enabled( $order_id ) {
 				}]);";
 	$thankyouscript_items = "";
 
+	// Add a JS snippet for each and every item in the given order
+	// Load product to get its original price
+
 	foreach ($order->get_items() as $item_id => $item_data) {
 		$_product = wc_get_product( $item_data['product_id'] );
 		$item_name = $item_data["name"];
@@ -123,6 +140,7 @@ function wcssint_ecomm_enabled( $order_id ) {
 				}]);
 			</script>";
 
+	// Output script
 	echo $thankyouscript_intro . $thankyouscript_items . $thankyouscript_outtro;
 
 }
