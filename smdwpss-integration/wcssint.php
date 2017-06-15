@@ -11,7 +11,6 @@
  *
  * @wordpress-plugin
  * Plugin Name:       WooCommerce SharpSpring Integration
- * Plugin URI:        http://smdesign-studio.com/
  * Description:       Integrate SharpSpring analytics into any WooCommerce shop.
  * Version:           1.0.0
  * Author:            SMDesign Studio
